@@ -16,6 +16,11 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Box
+import com.example.ecoreport.model.EstadoReporte
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -25,9 +30,19 @@ import com.example.ecoreport.data.ReporteEntity
 @Composable
 fun PantallaReportes(
     reportes: List<ReporteEntity>,
+    estadoFiltro: EstadoReporte?,
+    filtrarPorEstado: (EstadoReporte?) -> Unit,
     seleccionarReporte: (ReporteEntity) -> Unit,
     volver: () -> Unit
 ) {
+    var filtroAbierto by remember { mutableStateOf(false) }
+    val opciones = listOf(null) + EstadoReporte.entries
+    fun etiqueta(estado: EstadoReporte?) = when (estado) {
+        null -> "Todos"
+        EstadoReporte.PENDIENTE -> "Pendiente"
+        EstadoReporte.EN_PROCESO -> "En proceso"
+        EstadoReporte.RESUELTO -> "Resuelto"
+    }
 
     Column(
         modifier = Modifier
@@ -45,10 +60,28 @@ fun PantallaReportes(
             modifier = Modifier.height(16.dp)
         )
 
+        Box {
+            OutlinedButton(onClick = { filtroAbierto = true }) {
+                Text("Estado: ${etiqueta(estadoFiltro)}")
+            }
+            DropdownMenu(expanded = filtroAbierto, onDismissRequest = { filtroAbierto = false }) {
+                opciones.forEach { estado ->
+                    DropdownMenuItem(
+                        text = { Text(etiqueta(estado)) },
+                        onClick = {
+                            filtrarPorEstado(estado)
+                            filtroAbierto = false
+                        }
+                    )
+                }
+            }
+        }
+
         if (reportes.isEmpty()) {
 
             Text(
-                text = "No existen reportes registrados."
+                text = if (estadoFiltro == null) "No existen reportes registrados."
+                    else "No existen reportes con el estado seleccionado."
             )
 
         } else {
