@@ -23,8 +23,8 @@ interface ReporteDao {
 
     @Query(
         """
-            SELECT * 
-            FROM reportes 
+            SELECT *
+            FROM reportes
             WHERE (:categoria IS NULL OR categoria = :categoria)
             ORDER BY id DESC
         """
@@ -34,6 +34,13 @@ interface ReporteDao {
     ):
             Flow<List<ReporteEntity>>
 
+    @Query("""
+        SELECT * FROM reportes
+        WHERE (:estado IS NULL OR estado = :estado)
+          AND (:categoria IS NULL OR categoria = :categoria COLLATE NOCASE)
+        ORDER BY id DESC
+    """)
+    fun obtenerFiltrados(estado: String?, categoria: String?): Flow<List<ReporteEntity>>
     @Update
     suspend fun actualizar(
         reporte: ReporteEntity

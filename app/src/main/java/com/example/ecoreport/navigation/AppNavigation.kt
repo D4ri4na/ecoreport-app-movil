@@ -53,6 +53,9 @@ fun AppNavigation(
         .categoriaSeleccionada
         .collectAsStateWithLifecycle()
 
+    val estadoSeleccionado by viewModel.estadoSeleccionado.collectAsStateWithLifecycle()
+    val reportesFiltrados by viewModel.reportesFiltrados.collectAsStateWithLifecycle()
+
     NavHost(
         navController = navController,
         startDestination = "inicio"
@@ -111,15 +114,14 @@ fun AppNavigation(
         composable("reportes") {
 
             PantallaReportes(
-                reportes = reportes,
+                reportes = reportesFiltrados,
 
                 categoriaSeleccionada = categoriaSeleccionada,
 
-                seleccionarCategoria = {
-                    categoria ->
-                    viewModel.seleccionarCategoria(categoria)
-                },
-
+                estadoSeleccionado = estadoSeleccionado,
+                seleccionarEstado = viewModel::seleccionarEstado,
+                seleccionarCategoria = viewModel::seleccionarCategoria,
+                buscar = viewModel::buscarReportes,
                 seleccionarReporte = {
                         reporte ->
 

@@ -16,20 +16,36 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.*
+import androidx.compose.ui.Alignment
+import com.example.ecoreport.model.EstadoReporte
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.ecoreport.data.ReporteEntity
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PantallaReportes(
     reportes: List<ReporteEntity>,
-    categoriaSeleccionada: String?,
-    seleccionarCategoria: (ReporteEntity) -> Unit,
+    categoriaSeleccionada: String,
+    estadoSeleccionado: EstadoReporte?,
+    seleccionarEstado: (EstadoReporte?) -> Unit,
+    buscar: () -> Unit,
+    seleccionarCategoria: (String) -> Unit,
     seleccionarReporte: (ReporteEntity) -> Unit,
     volver: () -> Unit
 ) {
+
+    var menuAbierto by remember { mutableStateOf(false) }
+    fun etiqueta(estado: EstadoReporte?) = when (estado) {
+        null -> "Todos"
+        EstadoReporte.PENDIENTE -> "Pendiente"
+        EstadoReporte.EN_PROCESO -> "En proceso"
+        EstadoReporte.RESUELTO -> "Resuelto"
+    }
 
     Column(
         modifier = Modifier
@@ -47,10 +63,57 @@ fun PantallaReportes(
             modifier = Modifier.height(16.dp)
         )
 
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ExposedDropdownMenuBox(
+                expanded = menuAbierto,
+                onExpandedChange = { menuAbierto = it },
+                modifier = Modifier.weight(1f)
+            ) {
+                OutlinedTextField(
+                    value = etiqueta(estadoSeleccionado),
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Estado") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(menuAbierto) },
+                    singleLine = true,
+                    modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
+                        .fillMaxWidth()
+                )
+                ExposedDropdownMenu(
+                    expanded = menuAbierto,
+                    onDismissRequest = { menuAbierto = false }
+                ) {
+                    (listOf(null) + EstadoReporte.entries).forEach { estado ->
+                        DropdownMenuItem(
+                            text = { Text(etiqueta(estado)) },
+                            onClick = {
+                                seleccionarEstado(estado)
+                                menuAbierto = false
+                            }
+                        )
+                    }
+                }
+            }
+            OutlinedTextField(
+                value = categoriaSeleccionada,
+                onValueChange = seleccionarCategoria,
+                label = { Text("Categoría") },
+                singleLine = true,
+                modifier = Modifier.weight(1f)
+            )
+            Button(onClick = buscar) { Text("Buscar") }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         if (reportes.isEmpty()) {
 
             Text(
-                text = "No existen reportes registrados."
+                text = "No se encontraron reportes para esta búsqueda."
             )
 
         } else {
@@ -80,7 +143,6 @@ fun PantallaReportes(
                             defaultElevation = 4.dp
                         )
                     ) {
-
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
