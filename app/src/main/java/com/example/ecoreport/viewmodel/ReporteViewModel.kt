@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecoreport.data.ReporteEntity
+import com.example.ecoreport.data.remote.ReporteDto
 import com.example.ecoreport.repository.ReporteRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -18,6 +19,13 @@ class ReporteViewModel (
 ): ViewModel() {
 
     private val _categoriaSeleccionada = MutableStateFlow<String?>(null)
+
+    private val _reportesRemotos = MutableStateFlow<List<ReporteDto>>(emptyList())
+    private val _cargando = MutableStateFlow(false)
+    val cargando: StateFlow<Boolean> = _cargando
+
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error
 
     val categoriaSeleccionada: StateFlow<String?> = _categoriaSeleccionada
     val reportes:
