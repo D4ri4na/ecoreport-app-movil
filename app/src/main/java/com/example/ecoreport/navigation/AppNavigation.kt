@@ -1,6 +1,8 @@
 package com.example.ecoreport.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import com.example.ecoreport.ui_comp.screens.PantallaReportesRemotos
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -77,6 +79,8 @@ fun AppNavigation(
                     )
                 },
 
+                irReportesRemotos = { navController.navigate("reportes_remotos") },
+
                 irEstadisticas = {
 
                     navController.navigate(
@@ -136,6 +140,25 @@ fun AppNavigation(
                     navController
                         .popBackStack()
                 }
+            )
+        }
+
+        composable("reportes_remotos") {
+            val remotos by viewModel.reportesRemotos.collectAsStateWithLifecycle()
+            val cargando by viewModel.cargando.collectAsStateWithLifecycle()
+            val error by viewModel.error.collectAsStateWithLifecycle()
+
+            // Se consulta al entrar a esta ruta, no en cada recomposición.
+            LaunchedEffect(viewModel) {
+                viewModel.cargarReportesRemotos()
+            }
+
+            PantallaReportesRemotos(
+                reportes = remotos,
+                cargando = cargando,
+                error = error,
+                consultar = viewModel::cargarReportesRemotos,
+                volver = { navController.popBackStack() }
             )
         }
 

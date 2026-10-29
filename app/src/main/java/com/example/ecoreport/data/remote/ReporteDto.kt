@@ -1,13 +1,16 @@
 package com.example.ecoreport.data.remote
 
+import com.google.gson.annotations.SerializedName
+
 data class ReporteDto(
-    val id: Int,
-    val titulo: String,
-    val descripcion: String,
-    val categoria: String,
-    val ubicacion: String,
-    val estado: String,
-    val fecha: String
+    val id: String,
+    val titulo: String? = null,
+    val descripcion: String? = null,
+    val categoria: String? = null,
+    val ubicacion: String? = null,
+    val estado: String? = null,
+    val fecha: String? = null,
+    @SerializedName("name") val nombre: String? = null
 )
 
 //BASE URL = https://api.ejemplo.com/

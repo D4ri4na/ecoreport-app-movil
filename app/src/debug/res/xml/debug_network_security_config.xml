@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Solo se incluye en debug. Certificado público de la inspección HTTPS local. -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="false">6ae27094bbb541292299f4aa.mockapi.io</domain>
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="@raw/norton_development_ca" />
+        </trust-anchors>
+    </domain-config>
+</network-security-config>
