@@ -18,10 +18,21 @@ interface ReporteDao {
     @Query(
         "SELECT * FROM reportes ORDER BY id DESC"
     )
-    fun obtenerTodos(): Flow<List<ReporteEntity>>
+    fun obtenerTodos():
+            Flow<List<ReporteEntity>>
 
-    @Query("SELECT * FROM reportes WHERE (:estado IS NULL OR estado = :estado) ORDER BY id DESC")
-    fun obtenerPorEstado(estado: String?): Flow<List<ReporteEntity>>
+    @Query(
+        """
+            SELECT *
+            FROM reportes
+            WHERE (:categoria IS NULL OR categoria = :categoria)
+            ORDER BY id DESC
+        """
+    )
+    fun obtenerPorCategoria(
+        categoria: String?
+    ):
+            Flow<List<ReporteEntity>>
 
     @Update
     suspend fun actualizar(

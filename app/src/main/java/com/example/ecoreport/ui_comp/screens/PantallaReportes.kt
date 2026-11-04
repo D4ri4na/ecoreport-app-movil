@@ -1,8 +1,9 @@
-package com.example.ecoreport.ui.screens
+package com.example.ecoreport.ui_comp.screens
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,14 +14,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.runtime.*
-import androidx.compose.foundation.layout.Box
-import com.example.ecoreport.model.EstadoReporte
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -30,20 +27,11 @@ import com.example.ecoreport.data.ReporteEntity
 @Composable
 fun PantallaReportes(
     reportes: List<ReporteEntity>,
-    estadoFiltro: EstadoReporte?,
-    filtrarPorEstado: (EstadoReporte?) -> Unit,
+    categoriaSeleccionada: String?,
+    seleccionarCategoria: (String?) -> Unit,
     seleccionarReporte: (ReporteEntity) -> Unit,
     volver: () -> Unit
 ) {
-    var filtroAbierto by remember { mutableStateOf(false) }
-    val opciones = listOf(null) + EstadoReporte.entries
-    fun etiqueta(estado: EstadoReporte?) = when (estado) {
-        null -> "Todos"
-        EstadoReporte.PENDIENTE -> "Pendiente"
-        EstadoReporte.EN_PROCESO -> "En proceso"
-        EstadoReporte.RESUELTO -> "Resuelto"
-    }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -60,28 +48,92 @@ fun PantallaReportes(
             modifier = Modifier.height(16.dp)
         )
 
-        Box {
-            OutlinedButton(onClick = { filtroAbierto = true }) {
-                Text("Estado: ${etiqueta(estadoFiltro)}")
-            }
-            DropdownMenu(expanded = filtroAbierto, onDismissRequest = { filtroAbierto = false }) {
-                opciones.forEach { estado ->
-                    DropdownMenuItem(
-                        text = { Text(etiqueta(estado)) },
-                        onClick = {
-                            filtrarPorEstado(estado)
-                            filtroAbierto = false
-                        }
+        Text(
+            text = "Filtrar por categoría",
+            fontWeight = FontWeight.Bold
+        )
+
+        Spacer(
+            modifier = Modifier.height(8.dp)
+        )
+
+        Row (
+            horizontalArrangement =
+                Arrangement.spacedBy(4.dp)
+        ) {
+
+            FilterChip(
+                selected =
+                    categoriaSeleccionada == null,
+
+                onClick = {
+
+                    seleccionarCategoria(
+                        null
                     )
+                },
+
+                label = {
+                    Text("TODOS")
                 }
-            }
+            )
+
+            FilterChip(
+                selected =
+                    categoriaSeleccionada ==
+                            "alumbrado",
+
+                onClick = {
+
+                    seleccionarCategoria(
+                        "alumbrado"
+                    )
+                },
+
+                label = {
+                    Text("ALUMBRADO")
+                }
+            )
+
+            FilterChip(
+                selected =
+                    categoriaSeleccionada ==
+                            "AGUAS",
+
+                onClick = {
+
+                    seleccionarCategoria(
+                        "AGUAS"
+                    )
+                },
+
+                label = {
+                    Text("AGUAS")
+                }
+            )
+
+            FilterChip(
+                selected =
+                    categoriaSeleccionada ==
+                            "SUELOS",
+
+                onClick = {
+
+                    seleccionarCategoria(
+                        "SUELOS"
+                    )
+                },
+
+                label = {
+                    Text("SUELOS")
+                }
+            )
         }
 
         if (reportes.isEmpty()) {
 
             Text(
-                text = if (estadoFiltro == null) "No existen reportes registrados."
-                    else "No existen reportes con el estado seleccionado."
+                text = "No existen reportes registrados."
             )
 
         } else {
