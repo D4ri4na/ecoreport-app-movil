@@ -1,12 +1,12 @@
 package com.example.ecoreport.viewmodel
 
-import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecoreport.data.ReporteEntity
 import com.example.ecoreport.data.remote.CrearReporteDto
 import com.example.ecoreport.data.remote.ReporteDto
 import com.example.ecoreport.repository.ReporteRepository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class ReporteViewModel (
     private val repository: ReporteRepository
 ): ViewModel() {
@@ -60,7 +61,7 @@ class ReporteViewModel (
         _categoriaSeleccionada.value = categoria
     }
 
-    //DATOS REMOTOS
+    // Datos remotos
     private val _reportesRemotos = MutableStateFlow<List<ReporteDto>>(emptyList())
     val reportesRemotos: StateFlow<List<ReporteDto>> = _reportesRemotos
     private val _cargando = MutableStateFlow(false)
@@ -70,24 +71,13 @@ class ReporteViewModel (
 
     fun cargarReportesRemotos() {
         viewModelScope.launch {
-            _cargando.value = true
-            _error.value = null
-
-            try {
-                val datos = repository.obtenerReportesRemotos()
-
-                _reportesRemotos.value = datos
-            } catch (
-                e: Exception
-            ) {
-                _error.value = "No se pudieron cargar los reportes"
-            } finally {
-                _cargando.value = false
+            ejecutarOperacionRemota("No se pudieron cargar los reportes") {
+                _reportesRemotos.value = repository.obtenerReportesRemotos()
             }
         }
     }
 
-    fun crearNuevoReporteRemoto(
+    fun crearReporteRemoto(
         titulo: String,
         descripcion: String,
         categoria: String,
@@ -96,29 +86,77 @@ class ReporteViewModel (
         fecha: String
     ) {
         viewModelScope.launch {
-            _cargando.value = true
-
-            _error.value = null
-
-            try {
-                val reporte = CrearReporteDto(
-                    titulo,
-                    descripcion,
-                    categoria,
-                    ubicacion,
-                    estado = "PENDIENTE",
-                    fecha
+            ejecutarOperacionRemota("No se pudo crear el reporte") {
+                val reporteCreado = repository.crearReporte(
+                    CrearReporteDto(
+                        titulo = titulo,
+                        descripcion = descripcion,
+                        categoria = categoria,
+                        ubicacion = ubicacion,
+                        estado = estado,
+                        fecha = fecha
+                    )
                 )
 
-                repository.crearReporte(reporte)
-                cargarReportesRemotos()
-            } catch (e: Exception) {
-                _error.value = "Hubo un error al momento de crear el registro, por favor comuniquese con soporte"
-            } finally {
-                _cargando.value = false
+                _reportesRemotos.value = listOf(reporteCreado) + _reportesRemotos.value
             }
         }
     }
 
+    fun actualizarReporteRemoto(
+        id: String,
+        titulo: String,
+        descripcion: String,
+        categoria: String,
+        ubicacion: String,
+        estado: String,
+        fecha: String
+    ) {
+        viewModelScope.launch {
+            ejecutarOperacionRemota("No se pudo actualizar el reporte") {
+                val reporteActualizado = repository.editarReporte(
+                    id = id,
+                    reporteActualizado = CrearReporteDto(
+                        titulo = titulo,
+                        descripcion = descripcion,
+                        categoria = categoria,
+                        ubicacion = ubicacion,
+                        estado = estado,
+                        fecha = fecha
+                    )
+                )
 
+                _reportesRemotos.value = _reportesRemotos.value.map { reporte ->
+                    if (reporte.id == reporteActualizado.id) reporteActualizado else reporte
+                }
+            }
+        }
+    }
+
+    fun eliminarReporteRemoto(id: String) {
+        viewModelScope.launch {
+            ejecutarOperacionRemota("No se pudo eliminar el reporte") {
+                repository.eliminarReporte(id)
+                _reportesRemotos.value = _reportesRemotos.value.filterNot { reporte ->
+                    reporte.id == id
+                }
+            }
+        }
+    }
+
+    private suspend fun ejecutarOperacionRemota(
+        mensajeError: String,
+        operacion: suspend () -> Unit
+    ) {
+        _cargando.value = true
+        _error.value = null
+
+        try {
+            operacion()
+        } catch (e: Exception) {
+            _error.value = mensajeError
+        } finally {
+            _cargando.value = false
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package com.example.ecoreport.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -25,185 +26,95 @@ import com.example.ecoreport.data.remote.ReporteDto
 
 @Composable
 fun PantallaReportesRemotos(
-
-    reportes:
-    List<ReporteDto>,
-
-    cargando:
-    Boolean,
-
-    error:
-    String?,
-
-    volver:
-        () -> Unit
-
+    reportes: List<ReporteDto>,
+    cargando: Boolean,
+    error: String?,
+    crearReporte: () -> Unit,
+    seleccionarReporte: (ReporteDto) -> Unit,
+    recargar: () -> Unit,
+    volver: () -> Unit
 ) {
-
     Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .padding(
-                    20.dp
-                )
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(20.dp)
     ) {
-
         Text(
-            text =
-                "Reportes remotos",
-
-            style =
-                MaterialTheme
-                    .typography
-                    .headlineMedium,
-
-            fontWeight =
-                FontWeight.Bold
+            text = "Reportes remotos",
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold
         )
 
-        Spacer(
-            modifier =
-                Modifier.height(
-                    16.dp
-                )
-        )
+        Spacer(modifier = Modifier.height(12.dp))
 
-        when {
+        Button(
+            onClick = crearReporte,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("NUEVO REPORTE")
+        }
 
-            cargando -> {
+        Spacer(modifier = Modifier.height(16.dp))
 
-                CircularProgressIndicator()
+        if (cargando) {
+            CircularProgressIndicator()
+            Spacer(modifier = Modifier.height(12.dp))
+        }
+
+        if (error != null) {
+            Text(
+                text = error,
+                color = MaterialTheme.colorScheme.error
+            )
+            OutlinedButton(
+                onClick = recargar,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("REINTENTAR")
             }
+        }
 
-            error != null -> {
-
-                Text(
-                    text =
-                        error,
-
-                    color =
-                        MaterialTheme
-                            .colorScheme
-                            .error
-                )
-            }
-
-            reportes.isEmpty() -> {
-
-                Text(
-                    text =
-                        "No existen reportes remotos."
-                )
-            }
-
-            else -> {
-
-                LazyColumn(
-                    modifier =
-                        Modifier.weight(
-                            1f
-                        ),
-
-                    verticalArrangement =
-                        Arrangement.spacedBy(
-                            10.dp
-                        )
-                ) {
-
-                    items(
-                        items =
-                            reportes,
-
-                        key = {
-                                reporte ->
-
-                            reporte.id
-                        }
+        if (reportes.isEmpty() && !cargando && error == null) {
+            Text("No existen reportes remotos.")
+        } else {
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                items(items = reportes, key = { reporte -> reporte.id }) { reporte ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { seleccionarReporte(reporte) },
+                        shape = RoundedCornerShape(16.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                     ) {
-                            reporte ->
-
-                        Card(
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth(),
-
-                            shape =
-                                RoundedCornerShape(
-                                    16.dp
-                                ),
-
-                            elevation =
-                                CardDefaults
-                                    .cardElevation(
-                                        defaultElevation =
-                                            4.dp
-                                    )
-                        ) {
-
-                            Column(
-                                modifier =
-                                    Modifier.padding(
-                                        16.dp
-                                    )
-                            ) {
-
-                                Text(
-                                    text =
-                                        reporte.titulo,
-
-                                    fontWeight =
-                                        FontWeight.Bold
-                                )
-
-                                Text(
-                                    text =
-                                        "Categoría: ${reporte.categoria}"
-                                )
-
-                                Text(
-                                    text =
-                                        "Ubicación: ${reporte.ubicacion}"
-                                )
-
-                                Text(
-                                    text =
-                                        "Estado: ${reporte.estado}"
-                                )
-
-                                Spacer(
-                                    modifier =
-                                        Modifier.height(
-                                            10.dp
-                                        )
-                                )
-                            }
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(
+                                text = reporte.titulo ?: "Sin título",
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text("Descripción: ${reporte.descripcion ?: "Sin descripción"}")
+                            Text("Categoría: ${reporte.categoria ?: "Sin categoría"}")
+                            Text("Ubicación: ${reporte.ubicacion ?: "Sin ubicación"}")
+                            Text("Estado: ${reporte.estado ?: "Sin estado"}")
+                            Text("Fecha: ${reporte.fecha ?: "Sin fecha"}")
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = "Presiona para ver el detalle",
+                                style = MaterialTheme.typography.bodySmall
+                            )
                         }
                     }
                 }
             }
         }
 
-        Spacer(
-            modifier =
-                Modifier.height(
-                    12.dp
-                )
-        )
-
         OutlinedButton(
-            onClick =
-                volver,
-
-            modifier =
-                Modifier
-                    .fillMaxWidth()
+            onClick = volver,
+            modifier = Modifier.fillMaxWidth()
         ) {
-
-            Text(
-                text =
-                    "VOLVER"
-            )
+            Text("VOLVER")
         }
     }
 }

@@ -12,7 +12,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.ecoreport.data.ReporteEntity
+import com.example.ecoreport.data.remote.ReporteDto
 import com.example.ecoreport.repository.ReporteRepository
+import com.example.ecoreport.ui.screens.PantallaDetalleReporteRemoto
+import com.example.ecoreport.ui.screens.PantallaRegistroReporteRemoto
 import com.example.ecoreport.ui.screens.PantallaReportesRemotos
 import com.example.ecoreport.ui_comp.screens.PantallaDetalle
 import com.example.ecoreport.ui_comp.screens.PantallaEstadisticas
@@ -49,6 +52,10 @@ fun AppNavigation(
 
     var reporteSeleccionado by remember {
         mutableStateOf<ReporteEntity?>(null)
+    }
+
+    var reporteRemotoSeleccionado by remember {
+        mutableStateOf<ReporteDto?>(null)
     }
 
     val categoriaSeleccionada by viewModel
@@ -238,11 +245,61 @@ fun AppNavigation(
                 error =
                     error,
 
+                crearReporte = {
+                    navController.navigate("registro_remoto")
+                },
+
+                seleccionarReporte = { reporte ->
+                    reporteRemotoSeleccionado = reporte
+                    navController.navigate("detalle_remoto")
+                },
+
+                recargar = viewModel::cargarReportesRemotos,
+
                 volver = {
 
                     navController
                         .popBackStack()
                 }
+            )
+        }
+
+        composable("registro_remoto") {
+            PantallaRegistroReporteRemoto(
+                guardarReporte = { titulo, descripcion, categoria, ubicacion, estado, fecha ->
+                    viewModel.crearReporteRemoto(
+                        titulo = titulo,
+                        descripcion = descripcion,
+                        categoria = categoria,
+                        ubicacion = ubicacion,
+                        estado = estado,
+                        fecha = fecha
+                    )
+                    navController.popBackStack()
+                },
+                volver = { navController.popBackStack() }
+            )
+        }
+
+        composable("detalle_remoto") {
+            PantallaDetalleReporteRemoto(
+                reporte = reporteRemotoSeleccionado,
+                actualizarReporte = { id, titulo, descripcion, categoria, ubicacion, estado, fecha ->
+                    viewModel.actualizarReporteRemoto(
+                        id = id,
+                        titulo = titulo,
+                        descripcion = descripcion,
+                        categoria = categoria,
+                        ubicacion = ubicacion,
+                        estado = estado,
+                        fecha = fecha
+                    )
+                },
+                eliminarReporte = { id ->
+                    viewModel.eliminarReporteRemoto(id)
+                    reporteRemotoSeleccionado = null
+                },
+                volver = { navController.popBackStack() }
             )
         }
     }

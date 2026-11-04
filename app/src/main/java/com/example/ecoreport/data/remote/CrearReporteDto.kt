@@ -1,6 +1,9 @@
 package com.example.ecoreport.data.remote
 
-data class CrearReporteDto (
+import com.google.gson.annotations.SerializedName
+
+data class CrearReporteDto(
+    @SerializedName("name")
     val titulo: String,
     val descripcion: String,
     val categoria: String,

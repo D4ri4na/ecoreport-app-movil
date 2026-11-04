@@ -9,7 +9,7 @@ import retrofit2.http.Path
 
 interface ReporteApiService {
 
-    @GET("reportes")//BASE_URL = http://api.ejemplo.com/reportes
+    @GET("reportes")
     suspend fun obtenerReportes():
             List<ReporteDto>
 
@@ -20,12 +20,12 @@ interface ReporteApiService {
 
     @PUT("reportes/{id}")
     suspend fun actualizarReporte(
-        @Path("id") id: Int,
+        @Path("id") id: String,
         @Body reporte: CrearReporteDto
     ): ReporteDto
 
     @DELETE("reportes/{id}")
     suspend fun eliminarReporte(
-        @Path("id") id: Int
+        @Path("id") id: String
     )
 }

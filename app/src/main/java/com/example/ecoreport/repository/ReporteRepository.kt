@@ -47,7 +47,7 @@ class ReporteRepository (
     }
 
     suspend fun editarReporte(
-        id: Int,
+        id: String,
         reporteActualizado: CrearReporteDto
     ): ReporteDto {
         return api.actualizarReporte(
@@ -56,7 +56,7 @@ class ReporteRepository (
     }
 
     suspend fun eliminarReporte(
-        id: Int
+        id: String
     ) {
         api.eliminarReporte(id)
     }
