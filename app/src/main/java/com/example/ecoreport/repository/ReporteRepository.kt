@@ -49,10 +49,10 @@ class ReporteRepository (
     suspend fun editarReporte(
         id: Int,
         reporteActualizado: CrearReporteDto
-    ): ReporteDto{
+    ): ReporteDto {
         return api.actualizarReporte(
             id = id,
-            reporte = reporteActualizado )
+            reporte = reporteActualizado)
     }
 
     suspend fun eliminarReporte(

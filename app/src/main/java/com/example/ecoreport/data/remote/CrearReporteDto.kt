@@ -1,4 +1,4 @@
-package com.example.ecoreport.data.remote;
+package com.example.ecoreport.data.remote
 
 data class CrearReporteDto (
     val titulo: String,
